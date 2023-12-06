@@ -21,7 +21,7 @@ class DatabaseConnector:
     def list_db_tables(self):
         inspector = inspect(self.engine)
         table_names = inspector.get_table_names()
-        print(table_names)
+        print(f"List of tables names: {table_names}")
         return table_names
         
     def upload_to_db(self, df, table_name):

@@ -3,9 +3,10 @@ from database_utils import DatabaseConnector
 from sqlalchemy.exc import SQLAlchemyError
 from tabula import read_pdf
 import requests
+import boto3
+from io import StringIO
 
 db_connector = DatabaseConnector('db_creds.yaml')
-list_tables = db_connector.list_db_tables()
 
 class DataExtractor:
     def __init__(self, db_connector):
@@ -33,7 +34,7 @@ class DataExtractor:
         
     def retrieve_stores_data(self, headers, endpoint):
         stores_data = []
-        for store_number in range(0, 450):
+        for store_number in range(0, 451):
                 final_endpoint = f"{endpoint}/{store_number}"
                 response = requests.get(final_endpoint, headers=headers)
                 if response.status_code == 200:  # Check if the request was successful
@@ -42,19 +43,28 @@ class DataExtractor:
                 else:
                     print(f"Failed to retrieve data for store {store_number}. Status Code: {response.status_code}")
                     break
-        
         df = pd.DataFrame(stores_data)
         print(df)
         return df
-        
+    
+    def extract_from_s3_csv(self, s3_address): # other parameters: download_path
+        bucket_name, key = s3_address.split('//')[1].split('/', 1)
+        s3_client = boto3.client('s3')
+        response = s3_client.get_object(Bucket=bucket_name, Key=key)
+        #response = s3_client.download_file('data-handling-public', 'products.csv', 'products.csv')
+        csv_content = response['Body'].read().decode('utf-8')
+        df = pd.read_csv(StringIO(csv_content))
+        return df
 
-data_extractor = DataExtractor(db_connector)
+    def extract_from_s3_json(self, s3_address):
+        bucket_name, key = s3_address.split('//')[1].split('/', 1)
+        print(bucket_name)
+        s3_client = boto3.client('s3')
+        response = s3_client.get_object('data-handling-public ', Key=key)
+        json_content = response['Body'].read().decode('utf-8')
+        df = pd.read_json(StringIO(json_content))
+        return df
 
-retrieve_store_url = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/store_details"
-return_number_url = "https://aqj7u5id95.execute-api.eu-west-1.amazonaws.com/prod/number_stores"
-header = {"x-api-key": "yFBQbwXe9J3sd6zWVAMrK6lcxxr0q1lr2PT6DDMX"}
-number_of_stores = data_extractor.list_number_of_stores(header, return_number_url)
-stores_data = data_extractor.retrieve_stores_data(header, retrieve_store_url)
 
         
 
