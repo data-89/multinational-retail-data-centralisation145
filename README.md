@@ -1,10 +1,8 @@
-# multinational-retail-data-centralisation145
-
 # Multinational Retail Distribution Centre ETL Pipeline
-Overview
+### Overview
 This project implements an ETL (Extract, Transform, Load) pipeline for a Multinational Retail Distribution Centre. The pipeline is designed to handle data extraction from various sources, cleaning and transformation, and loading the data into a database for analysis.
 
-Project Structure
+### Project Structure
 The project is organized into three main classes:
 
 1. DataExtractor: Handles the extraction of data from different sources, including databases and PDFs.
@@ -13,7 +11,8 @@ The project is organized into three main classes:
 
 3. DataCleaning: Contains methods for cleaning and transforming the extracted data before loading it into the database.
 
-Classes and Methods
+### Classes and Methods
+
 1. DataExtractor
    Methods:
 read_rds_table(table_name):
@@ -31,6 +30,7 @@ Retrieves store data from an API endpoint.
 extract_from_s3(s3_address, download_path):
 
 Downloads and extracts data from an S3 bucket.
+
 2. DatabaseConnector
   Methods:
 init(file_path):
